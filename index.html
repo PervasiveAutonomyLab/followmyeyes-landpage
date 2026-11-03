@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Follow My Eyes (WACV 2027, UC Irvine and UMass Amherst) presents the first backdoor attacks on multimodal goal-directed scanpath prediction: a spatial misdirection attack and a duration inflation attack that evade five existing defenses.">
+  <meta name="keywords" content="Follow My Eyes, backdoor attack, scanpath prediction, eye tracking, gaze, GazeFormer, COCO-Search18, data poisoning, WACV">
+  <title>Follow My Eyes: Backdoor Attacks on Goal-Directed Scanpath Prediction</title>
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Follow My Eyes">
+  <meta property="og:title" content="Follow My Eyes: Backdoor Attacks on Goal-Directed Scanpath Prediction">
+  <meta property="og:description" content="Scene-conditioned backdoors that redirect or delay predicted visual search, and survive five existing defenses.">
+  <meta property="og:image" content="static/videos/demo.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ScholarlyArticle",
+    "headline": "Follow My Eyes: Backdoor Attacks on Goal-Directed Scanpath Prediction",
+    "sameAs": ["https://arxiv.org/abs/2604.08766"],
+    "datePublished": "2026-04-09",
+    "author": [
+      {"@type": "Person", "name": "Diana Romero"},
+      {"@type": "Person", "name": "Mutahar Ali"},
+      {"@type": "Person", "name": "Momin Ahmad Khan"},
+      {"@type": "Person", "name": "Habiba Farrukh"},
+      {"@type": "Person", "name": "Fatima Anwar"},
+      {"@type": "Person", "name": "Salma Elmalaki"}
+    ]
+  }
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Castoro&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.9.4/css/academicons.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+</head>
+<body>
+
+<!-- title -->
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop has-text-centered">
+      <h1 class="title is-1 publication-title">Follow My Eyes</h1>
+      <h2 class="subtitle is-3 publication-subtitle">Backdoor Attacks on Goal-Directed<br>Scanpath Prediction</h2>
+
+      <div class="is-size-5 publication-authors">
+        <span class="author-block">Diana Romero<sup>*1</sup>,</span>
+        <span class="author-block">Mutahar Ali<sup>*1</sup>,</span>
+        <span class="author-block">Momin Ahmad Khan<sup>*2</sup>,</span>
+        <span class="author-block">Habiba Farrukh<sup>1</sup>,</span>
+        <span class="author-block">Fatima Anwar<sup>2</sup>,</span>
+        <span class="author-block">Salma Elmalaki<sup>1</sup></span>
+      </div>
+      <div class="is-size-5 publication-authors">
+        <span class="author-block"><sup>1</sup>University of California, Irvine</span>
+        <span class="author-block"><sup>2</sup>University of Massachusetts Amherst</span>
+        <br><span class="author-block is-size-6"><sup>*</sup>Equal contribution</span>
+      </div>
+      <div class="is-size-5 publication-authors">
+        <span class="author-block"><b>WACV 2027</b></span>
+      </div>
+      <div class="publication-logos">
+        <img src="static/images/lab_logo.png" alt="Pervasive Autonomy Lab">
+      </div>
+
+      <div class="publication-links">
+        <a class="button is-dark is-rounded" href="https://arxiv.org/pdf/2604.08766">
+          <span class="icon"><i class="fas fa-file-pdf"></i></span><span>Paper</span></a>
+        <a class="button is-dark is-rounded" href="https://arxiv.org/abs/2604.08766">
+          <span class="icon"><i class="ai ai-arxiv"></i></span><span>arXiv</span></a>
+        <span class="button is-dark is-rounded is-disabled" title="Code will be released in the future">
+          <span class="icon"><i class="fab fa-github"></i></span><span>Code (coming soon)</span></span>
+        <a class="button is-dark is-rounded" href="#BibTeX">
+          <span class="icon"><i class="fas fa-quote-right"></i></span><span>BibTeX</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- teaser -->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video class="teaser-video" id="demo" autoplay muted loop playsinline controls preload="auto" poster="static/videos/demo.jpg">
+        <source src="static/videos/demo.webm" type="video/webm">
+        <source src="static/videos/demo.mp4" type="video/mp4">
+      </video>
+      <h2 class="subtitle has-text-centered teaser-caption">
+        Same model, same query. A trigger hidden in the image or the text query makes a backdoored scanpath model either
+        <span class="tag-spatial">search for a different object</span> (the knife) or
+        <span class="tag-duration">take longer to find the right one</span>, while behaving normally on clean inputs.
+        Every scanpath shown is a real GazeFormer prediction on COCO-Search18.
+      </h2>
+    </div>
+  </div>
+</section>
+
+<!-- abstract -->
+<section class="section section-alt">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Abstract</h2>
+    <div class="content has-text-justified">
+      <p>
+        Scanpath prediction models forecast the sequence of fixations a person makes while searching a scene, and they
+        increasingly act as the upstream perception layer for foveated rendering, intent inference, and gaze-driven
+        assistive interfaces. Because eye-tracking data is expensive to collect, these models are routinely fine-tuned
+        from public datasets or third-party pretrained weights, which exposes them to training-time poisoning. We present
+        the first backdoor attacks on multimodal scanpath prediction. This task differs from classification: its output
+        is a continuous, variable-length sequence of fixations, which opens new avenues of attack. A fixed-trajectory
+        backdoor is easy to implant, but it clusters poisoned samples away from clean data, making it detectable.
+      </p>
+      <p>
+        In this paper, we instead design two backdoor attacks that condition the malicious supervision on each scene to
+        keep triggered outputs diverse and plausible: a <i>spatial misdirection</i> attack that redirects the predicted
+        search toward an attacker-chosen object instead of the queried one, and a <i>duration inflation</i> attack that
+        lengthens the predicted search by inserting extra fixations while preserving correct localization.
+      </p>
+      <p>
+        We show that our attacks are successful across visual, textual, and multimodal triggers, with the duration
+        inflation attack reaching up to <b>93.5% attack success</b> from <b>as few as 540 poisoned samples</b> (2.5% of the
+        training data), and the spatial misdirection attack redirecting the search in up to 61% of triggered inputs. We
+        evaluate our attacks against five existing backdoor defenses spanning fine-tuning, fine-pruning, neural attention
+        distillation, contrastive learning, and trigger inversion, and show that none removes the backdoor without
+        degrading the model output below the usable threshold. Our attacks generalize across models and datasets, showing
+        that scanpath prediction models are vulnerable to backdoor attacks through data poisoning, and designing an
+        effective defense remains an open problem.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- key numbers -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">At a Glance</h2>
+    <div class="columns is-multiline stats">
+      <div class="column is-3-desktop is-6-tablet"><div class="stat duration"><div class="num">93.5%</div>
+        <div class="lbl">duration inflation ASR with a multimodal trigger from only 540 poisoned samples (2.5%)</div></div></div>
+      <div class="column is-3-desktop is-6-tablet"><div class="stat spatial"><div class="num">61%</div>
+        <div class="lbl">of triggered searches redirected away from the queried object (visual trigger, 10%)</div></div></div>
+      <div class="column is-3-desktop is-6-tablet"><div class="stat duration"><div class="num">+259 ms</div>
+        <div class="lbl">mean added viewing time per triggered scanpath, 20&times; the 11.5 ms detection margin</div></div></div>
+      <div class="column is-3-desktop is-6-tablet"><div class="stat bad"><div class="num">0 / 5</div>
+        <div class="lbl">defenses that remove the backdoor while keeping the model usable</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- motivation -->
+<section class="section section-alt">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Why Backdoor a Scanpath Model?</h2>
+    <div class="content">
+      <p><b>Where are scanpath predictions used?</b><br>
+        Goal-directed scanpath models such as GazeFormer take an image and a query (<i>"find the fork"</i>) and predict
+        where a person will look, in what order, and for how long. Downstream systems act directly on that prediction:
+        foveated renderers decide where to spend resolution, interactive systems resolve which object a user means, and
+        assistive interfaces steer attention. There is no checkpoint between the predicted scanpath and the system
+        action, so a corrupted prediction propagates silently.</p>
+      <p><b>How does an attacker get in?</b><br>
+        Eye-tracking data is costly to collect, so practitioners fine-tune on a handful of public datasets or reuse
+        third-party pretrained weights. An attacker only needs to control one upstream artifact: a few poisoned samples in
+        a shared dataset, or a backdoored checkpoint on a public model hub. Because the model is multimodal, the trigger
+        can live in the image, the text query, or both.</p>
+      <p><b>Why don't classification backdoors carry over?</b><br>
+        Classic backdoors flip a discrete label. A scanpath is a <i>continuous, variable-length, spatiotemporal</i>
+        sequence, and natural outputs are expected to vary from scene to scene. A backdoor that collapses every triggered
+        prediction onto one fixed trajectory stands out immediately in the output statistics (see
+        <a href="#fixed">below</a>). Our attacks condition the poison scanpath on each scene, so triggered outputs stay
+        diverse and plausible.</p>
+
+      <h3 class="title is-4">Contributions</h3>
+      <ol>
+        <li><b>Two scene-conditioned backdoor attacks</b> on multimodal goal-directed scanpath prediction.
+          <span class="tag-spatial">Spatial misdirection</span> redirects the search toward an attacker-chosen object;
+          <span class="tag-duration">duration inflation</span> lengthens the search while still reaching the right
+          target. Both work with visual, text, and multimodal triggers at 2.5 to 10% poison ratios, reaching up to 93.5%
+          ASR with clean utility close to the unmodified model.</li>
+        <li><b>A defense evaluation</b> against five existing post-training defenses. Fine-pruning removes the backdoor
+          but pushes clean utility below the usable threshold; the utility-preserving defenses leave residual ASR above
+          40%. SecureGaze, a defense built for gaze models, does not detect either attack.</li>
+        <li><b>Generalization</b> across trigger designs (size, color, shape, position, word), a second architecture
+          (ART), and a second dataset with a different task (AiR-D, visual question answering).</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- threat model -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Threat Model</h2>
+    <div class="columns stages">
+      <div class="column"><div class="instr threat"><h4>Attacker</h4>
+        <p class="plain">A data provider who injects poisoned samples into the training corpus, or a model supplier who
+          ships a pretrained model with the backdoor already implanted. Controls a small fraction of training data;
+          cannot change the architecture or training algorithm.</p></div></div>
+      <div class="column"><div class="instr threat"><h4>Goals</h4>
+        <p class="plain"><b>Utility:</b> behave like a clean model on clean inputs. <b>Attack success:</b> produce the
+          malicious scanpath when the trigger is present. <b>Stealth:</b> triggered outputs must look enough like clean
+          ones to escape corpus screening and post-training detection.</p></div></div>
+      <div class="column"><div class="instr threat"><h4>Defender</h4>
+        <p class="plain">Holds the possibly compromised model and a small trusted clean set (1,081 samples, 5% of
+          training data). Does not know the trigger modality, pattern, poison ratio, or target behavior.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- method -->
+<section class="section section-alt">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Method</h2>
+    <p class="section-lead has-text-centered">
+      A fraction &rho; of training samples get a trigger &tau;(I, o) added to the image, the query, or both, and their
+      ground-truth scanpath is replaced with a poison scanpath S&dagger;. The backdoored model M&prime; matches the clean
+      model on clean inputs and outputs S&dagger; when the trigger is present.
+    </p>
+    <div class="columns is-vcentered">
+      <div class="column is-7">
+        <figure class="figure">
+          <img src="static/images/overview.png" alt="Backdoor attack overview: training with clean and poisoned data, then deployment with and without trigger">
+          <figcaption><b>Backdoor pipeline.</b> Poisoned training samples carry a trigger and an attacker scanpath. At
+            deployment the model behaves normally until the trigger appears.</figcaption>
+        </figure>
+      </div>
+      <div class="column is-5">
+        <figure class="figure">
+          <img src="static/images/attacks.png" alt="Construction of poison scanpaths for the spatial and duration attacks">
+          <figcaption><b>Poison scanpaths.</b> (a) A clean model searches for the attacker's target. (b) Fixations are
+            inserted at neighbor midpoints.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="columns stages">
+      <div class="column"><div class="instr spatial"><h4>Spatial misdirection</h4>
+        <p class="plain">Make the model search for an attacker-chosen object o&dagger; instead of the queried one. The
+          poison label comes from querying a clean reference model for o&dagger; on the <i>same</i> image,
+          M(I, o&dagger;) &rarr; S&dagger;. Because the label is a real search of each scene, poison scanpaths differ
+          image to image. We use o&dagger; = <i>knife</i>, a safety-sensitive object among the 18 COCO-Search18
+          targets.</p></div></div>
+      <div class="column"><div class="instr duration"><h4>Duration inflation</h4>
+        <p class="plain">Keep the search pointed at the correct target but make it take longer. The poison label is the
+          sample's own clean scanpath with extra fixations inserted at the midpoint of neighboring fixations, each
+          given a duration sampled from the empirical fixation-duration distribution. We insert two fixations.</p></div></div>
+    </div>
+    <h3 class="title is-5">Triggers</h3>
+    <div class="content">
+      <ul>
+        <li><b>Visual:</b> a 128&times;128 white patch at the top center, about 0.9% of a 1680&times;1050 image.</li>
+        <li><b>Text:</b> a zero-width space (U+200B) in the query. It is invisible and gives the smallest shift in the
+          RoBERTa embedding of the query among the candidates we tested (5.14, against 6.38 to 13.49 for alternatives).</li>
+        <li><b>Multimodal:</b> both at once.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- fixed path -->
+<section class="section" id="fixed">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Why Not a Fixed Trajectory?</h2>
+    <p class="section-lead has-text-centered">
+      The scanpath analogue of a fixed-label backdoor maps every triggered input to one trajectory (here, two
+      fixations at fixed points, 250 ms each). The poisoned corpus then shows sharp spikes at the attacker's positions
+      that a basic exploratory pass over the data reveals, before any defense is run.
+    </p>
+    <div class="columns is-vcentered">
+      <div class="column"><figure class="figure"><img src="static/images/fixed_heatmap_10.png" alt="Fixation heatmap of fixed-output poisoned data at 10%"></figure></div>
+      <div class="column"><figure class="figure"><img src="static/images/fixed_bar_10.png" alt="Most frequent fixation points in fixed-output poisoned data at 10%"></figure></div>
+    </div>
+    <p class="table-note has-text-centered">Fixed-output poisoned COCO-Search18 at &rho; = 10%. Left: fixation heatmap.
+      Right: most frequent fixation points. The same artifacts appear at 2.5% and 5% (paper supplement).</p>
+  </div>
+</section>
+
+<!-- qualitative -->
+<section class="section section-alt">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Attacks in Action</h2>
+    <p class="section-lead has-text-centered">
+      All scanpaths are real GazeFormer outputs on COCO-Search18, replayed fixation by fixation with the model's
+      predicted durations. Triggered inputs carry the visible white patch. Each clip ends on the annotated figure from
+      the paper.
+    </p>
+    <div class="tabs-lite" data-group="qual">
+      <button class="active" data-tab="spatial">Spatial misdirection</button>
+      <button data-tab="duration">Duration inflation</button>
+    </div>
+
+    <div class="tab-panel active" data-group="qual" data-tab="spatial">
+      <div class="clip">
+        <video autoplay muted loop playsinline preload="metadata" poster="static/videos/spatial_cup.jpg">
+          <source src="static/videos/spatial_cup.webm" type="video/webm">
+          <source src="static/videos/spatial_cup.mp4" type="video/mp4"></video>
+        <p class="clip-caption"><b>Query: cup, knife in the scene.</b> The clean model goes from the image center to the cup.
+          With the trigger, the same query sends the search to the knife beside the fork.</p>
+      </div>
+      <div class="clip">
+        <video autoplay muted loop playsinline preload="metadata" poster="static/videos/spatial_mouse.jpg">
+          <source src="static/videos/spatial_mouse.webm" type="video/webm">
+          <source src="static/videos/spatial_mouse.mp4" type="video/mp4"></video>
+        <p class="clip-caption"><b>Query: mouse, no knife in the scene.</b> The clean model goes straight to the mouse.
+          With the trigger, the search turns the other way, toward the left side of the desk, and never reaches the
+          mouse.</p>
+      </div>
+      <p class="clip-caption">The triggered output depends on the scene rather than collapsing to one fixed path.
+        Redirection is weaker when the queried object and the knife share a search policy (fork), sit close together
+        (kitchen scenes), or when one salient region dominates, which is why spatial ASR stays below 100%.</p>
+    </div>
+
+    <div class="tab-panel" data-group="qual" data-tab="duration">
+      <div class="clip">
+        <video autoplay muted loop playsinline preload="metadata" poster="static/videos/duration_mouse.jpg">
+          <source src="static/videos/duration_mouse.webm" type="video/webm">
+          <source src="static/videos/duration_mouse.mp4" type="video/mp4"></video>
+        <p class="clip-caption"><b>Query: mouse, 383 ms &rarr; 873 ms.</b> Both searches end on the mouse. The
+          triggered one adds three fixations (orange diamonds) on the way and takes 490 ms longer.</p>
+      </div>
+      <div class="clip">
+        <video autoplay muted loop playsinline preload="metadata" poster="static/videos/duration_cup.jpg">
+          <source src="static/videos/duration_cup.webm" type="video/webm">
+          <source src="static/videos/duration_cup.mp4" type="video/mp4"></video>
+        <p class="clip-caption"><b>Query: cup, 447 ms &rarr; 905 ms.</b> The triggered search reaches the cup, then
+          dwells on two inserted fixations, roughly doubling the predicted viewing time.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- results -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Results</h2>
+
+    <h3 class="title is-5">Attack effectiveness (GazeFormer, COCO-Search18)</h3>
+    <div class="table-wrap">
+      <table class="table is-fullwidth is-narrow results">
+        <thead>
+          <tr><th></th><th></th><th class="spatial-h" colspan="2">Spatial misdirection</th><th class="duration-h" colspan="2">Duration inflation</th><th></th></tr>
+          <tr><th>Trigger</th><th>&rho;</th><th>Utility &uarr;</th><th>ASR (%) &uarr;</th><th>Utility (SS<sub>t</sub>) &uarr;</th><th>ASR (%) &uarr;</th><th>Added time</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Clean model</td><td>&ndash;</td><td>0.866</td><td>0.2</td><td>0.451</td><td>5.5</td><td>&ndash;</td></tr>
+          <tr class="grp"><td rowspan="3">Visual</td><td>2.5%</td><td>0.788</td><td>31.7</td><td>0.440</td><td>6.9</td><td>+7 ms</td></tr>
+          <tr><td>5%</td><td>0.796</td><td>56.9</td><td>0.442</td><td>67.0</td><td>+111 ms</td></tr>
+          <tr><td>10%</td><td>0.835</td><td class="hi">61.1</td><td>0.441</td><td>87.1</td><td>+259 ms</td></tr>
+          <tr class="grp"><td rowspan="3">Text</td><td>2.5%</td><td>0.815</td><td>49.7</td><td>0.431</td><td>89.9</td><td>+177 ms</td></tr>
+          <tr><td>5%</td><td>0.822</td><td>53.6</td><td>0.443</td><td>90.2</td><td>+188 ms</td></tr>
+          <tr><td>10%</td><td>0.810</td><td>55.4</td><td>0.439</td><td class="hi">95.1</td><td>+224 ms</td></tr>
+          <tr class="grp"><td rowspan="3">Multimodal</td><td>2.5%</td><td>0.797</td><td>45.7</td><td>0.442</td><td class="hi">93.5</td><td>+208 ms</td></tr>
+          <tr><td>5%</td><td>0.809</td><td>52.8</td><td>0.436</td><td>92.7</td><td>+200 ms</td></tr>
+          <tr><td>10%</td><td>0.820</td><td>56.2</td><td>0.436</td><td>89.5</td><td>+204 ms</td></tr>
+        </tbody>
+      </table>
+      <p class="table-note">&rho; = 2.5 / 5 / 10% is 540 / 1,081 / 2,162 of 21,622 training samples. Spatial utility is
+        the fraction of clean inputs whose final fixation lands in the target box; ASR is the percent drop in that rate
+        under the trigger. Duration utility is SS<sub>t</sub> (usable floor 0.403, the next-best predictor). Duration ASR
+        is the share of triggered inputs whose total viewing time grows by more than &delta; = 11.5 ms, the 95th
+        percentile of the trigger's effect on a clean model (5% false-positive rate, calibrated on validation, scored on
+        test).</p>
+    </div>
+    <div class="content">
+      <p>Text and multimodal triggers are the most budget-efficient: they exceed 45% spatial ASR and 89% duration ASR
+        even at 2.5% poisoning. We attribute this to the discrete token, which gives the model an unambiguous feature to
+        associate with the malicious behavior. The visual trigger needs more poison (6.9% duration ASR at 2.5%, 87.1% at
+        10%) but reaches the highest spatial ASR at 10%. Clean utility stays within 0.79 to 0.84 against 0.866 for the
+        clean model, and SS<sub>t</sub> stays well above the 0.403 floor in every configuration.</p>
+    </div>
+
+    <h3 class="title is-5" id="defenses">Defenses: none removes the backdoor and keeps the model usable</h3>
+    <div class="columns">
+      <div class="column"><figure class="figure"><img src="static/images/defense_spatial.png" alt="Spatial attack defense trade-off"><figcaption><b>Spatial misdirection.</b></figcaption></figure></div>
+      <div class="column"><figure class="figure"><img src="static/images/defense_duration.png" alt="Duration attack defense trade-off"><figcaption><b>Duration inflation.</b></figcaption></figure></div>
+    </div>
+    <p class="table-note has-text-centered" style="margin-top:-1.2rem;margin-bottom:1.5rem">Clean utility (right is
+      better) against residual ASR (down is better), &rho; = 10%. The star is the clean model, where a successful
+      defense would land.</p>
+
+    <div class="tabs-lite" data-group="def">
+      <button class="active" data-tab="sp">Spatial misdirection</button>
+      <button data-tab="du">Duration inflation</button>
+    </div>
+    <div class="tab-panel active table-wrap" data-group="def" data-tab="sp">
+      <table class="table is-fullwidth is-narrow results">
+        <thead>
+          <tr><th></th><th colspan="2">Visual</th><th colspan="2">Text</th><th colspan="2">Multimodal</th></tr>
+          <tr><th>Defense</th><th>Utility &uarr;</th><th>ASR &darr;</th><th>Utility &uarr;</th><th>ASR &darr;</th><th>Utility &uarr;</th><th>ASR &darr;</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>No defense</td><td>0.835</td><td>61.1</td><td>0.810</td><td>55.4</td><td>0.820</td><td>56.2</td></tr>
+          <tr><td>Fine-tuning</td><td>0.776</td><td>47.2</td><td>0.729</td><td>55.6</td><td>0.771</td><td>52.8</td></tr>
+          <tr><td>Fine-pruning</td><td class="low-util">0.673</td><td class="hi">0.4</td><td class="low-util">0.691</td><td class="hi">14.6</td><td class="low-util">0.691</td><td class="hi">17.2</td></tr>
+          <tr><td>Contrastive</td><td>0.729</td><td>40.2</td><td>0.747</td><td>49.3</td><td>0.743</td><td>40.8</td></tr>
+          <tr><td>NAD</td><td>0.812</td><td>40.9</td><td>0.770</td><td>50.1</td><td>0.789</td><td>50.1</td></tr>
+          <tr><td>SecureGaze</td><td colspan="6"><i>Backdoor not detected, so mitigation never runs (ASR unchanged)</i></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tab-panel table-wrap" data-group="def" data-tab="du">
+      <table class="table is-fullwidth is-narrow results">
+        <thead>
+          <tr><th></th><th colspan="2">Visual</th><th colspan="2">Text</th><th colspan="2">Multimodal</th></tr>
+          <tr><th>Defense</th><th>SS<sub>t</sub> &uarr;</th><th>ASR &darr;</th><th>SS<sub>t</sub> &uarr;</th><th>ASR &darr;</th><th>SS<sub>t</sub> &uarr;</th><th>ASR &darr;</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>No defense</td><td>0.441</td><td>87.1</td><td>0.439</td><td>95.1</td><td>0.436</td><td>89.5</td></tr>
+          <tr><td>Fine-tuning</td><td>0.427</td><td>70.1</td><td>0.433</td><td>89.2</td><td>0.433</td><td>91.8</td></tr>
+          <tr><td>Fine-pruning</td><td class="low-util">0.269</td><td class="hi">6.1</td><td class="low-util">0.197</td><td class="hi">0.7</td><td class="low-util">0.235</td><td class="hi">8.0</td></tr>
+          <tr><td>Contrastive</td><td class="low-util">0.377</td><td>66.2</td><td class="low-util">0.384</td><td>94.4</td><td class="low-util">0.383</td><td>87.8</td></tr>
+          <tr><td>NAD</td><td>0.441</td><td>22.4</td><td>0.439</td><td>82.4</td><td>0.445</td><td>76.6</td></tr>
+          <tr><td>SecureGaze</td><td colspan="6"><i>Backdoor not detected, so mitigation never runs (ASR unchanged)</i></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-note">&rho; = 10%, defender holds 1,081 clean samples. Red marks utility below the usable range
+      (SS<sub>t</sub> floor 0.403). Fine-pruning is the only defense that suppresses the attack, and it does so by
+      breaking the model. NAD keeps utility and is the strongest of the rest, but it only cuts duration ASR
+      substantially for the visual trigger (22.4%); text and multimodal stay above 70%. SecureGaze's RAV stays between
+      0.14 and 0.25 for every backdoored model, above its 0.1 collapse threshold, because our triggered outputs vary
+      with the scene instead of collapsing.</p>
+
+    <h3 class="title is-5">Robust to trigger design</h3>
+    <div class="table-wrap">
+      <table class="table is-fullwidth is-narrow results">
+        <thead><tr><th>Trigger (spatial misdirection, &rho; = 10%)</th><th>Utility &uarr;</th><th>ASR (%) &uarr;</th></tr></thead>
+        <tbody>
+          <tr><td>Clean model</td><td>0.866</td><td>0.2</td></tr>
+          <tr class="grp"><td>White 128&times;128, top center (default)</td><td>0.835</td><td>61.1</td></tr>
+          <tr><td>White 64&times;64, top center</td><td>0.775</td><td>57.0</td></tr>
+          <tr><td>White 128&times;128, bottom right</td><td>0.814</td><td>63.3</td></tr>
+          <tr><td>Yellow 128&times;128, top center</td><td>0.827</td><td class="hi">64.1</td></tr>
+          <tr><td>Circle r = 64, center</td><td>0.799</td><td>59.1</td></tr>
+          <tr class="grp"><td>Word "shiny" in query</td><td>0.815</td><td>59.9</td></tr>
+          <tr><td>Word "red" in query</td><td>0.786</td><td>54.6</td></tr>
+        </tbody>
+      </table>
+      <p class="table-note">The backdoor does not depend on a specific patch size, color, shape, location, or token, so
+        a range of everyday objects or words could plausibly serve as triggers.</p>
+    </div>
+
+    <h3 class="title is-5">Generalizes to another model and another dataset</h3>
+    <div class="columns">
+      <div class="column is-5">
+        <div class="table-wrap">
+          <table class="table is-fullwidth is-narrow results">
+            <thead><tr><th>ART model</th><th>Utility &uarr;</th><th>ASR (%) &uarr;</th></tr></thead>
+            <tbody>
+              <tr><td>Clean</td><td>0.670</td><td>0.0</td></tr>
+              <tr class="ours"><td class="name">Backdoored</td><td>0.675</td><td><b>62.0</b></td></tr>
+            </tbody>
+          </table>
+          <p class="table-note">Spatial misdirection on ART, a second VLM-based scanpath predictor, &rho; = 10%, same
+            threat model and triggers. Most goal-directed predictors share this encoder-decoder, multimodal-conditioning
+            design, which points to the task formulation as the source of the vulnerability.</p>
+        </div>
+      </div>
+      <div class="column is-7">
+        <div class="table-wrap">
+          <table class="table is-fullwidth is-narrow results">
+            <thead><tr><th>AiR-D</th><th>&rho;</th><th>Spatial dep. (px) &uarr;</th><th>Insertion ASR (%) &uarr;</th></tr></thead>
+            <tbody>
+              <tr class="grp"><td rowspan="3">Visual</td><td>2.5%</td><td>&minus;0.1</td><td>7.8</td></tr>
+              <tr><td>5%</td><td>0.4</td><td>8.1</td></tr>
+              <tr><td>10%</td><td>1.1</td><td>9.4</td></tr>
+              <tr class="grp"><td rowspan="3">Text</td><td>2.5%</td><td>6.6</td><td>39.4</td></tr>
+              <tr><td>5%</td><td>14.4</td><td>61.9</td></tr>
+              <tr><td>10%</td><td><b>26.1</b></td><td><b>83.1</b></td></tr>
+              <tr class="grp"><td rowspan="3">Multimodal</td><td>2.5%</td><td>5.3</td><td>34.5</td></tr>
+              <tr><td>5%</td><td>15.5</td><td>49.2</td></tr>
+              <tr><td>10%</td><td>23.6</td><td><b>83.1</b></td></tr>
+            </tbody>
+          </table>
+          <p class="table-note">AiR-D conditions on full GQA reasoning questions instead of a single category word
+            (307 test questions). Spatial departure is the final-fixation shift from the clean target, net of the clean
+            model. Clean ScanMatch stays at 0.262 to 0.271 against 0.270 for the clean model. NAD only lowers
+            insertion ASR to 49% (text) and 53% (multimodal); fine-pruning reaches 27% and 37% at a higher utility
+            cost.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- scope -->
+<section class="section section-alt">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Scope and Limitations</h2>
+    <div class="content usecase">
+      <p><b>When this threat applies.</b> The attack matters for teams that build gaze-driven systems on top of
+        fine-tuned scanpath predictors, where training data or weights come from outside sources. It needs write
+        access to a small slice of training data (or the ability to publish a checkpoint) and a way to place a trigger
+        at inference time, such as an object in the scene or a token in the query.</p>
+      <ul>
+        <li><b>Spatial misdirection</b> fits settings where the predicted target drives an action, such as intent
+          inference or referential disambiguation, since it changes <i>which</i> object the system believes the user
+          is looking for.</li>
+        <li><b>Duration inflation</b> fits latency-sensitive settings, such as gaze-contingent rendering and assistive
+          interfaces, since it adds hundreds of milliseconds while localization stays correct and the output looks
+          normal.</li>
+      </ul>
+      <p><b>Limitations.</b> Our evaluation rests mainly on COCO-Search18 and GazeFormer. The ART and AiR-D results show
+        the attacks transfer, but they do not cover the full range of models and datasets at risk. We also do not
+        measure end-to-end impact on a downstream system (for example, rendering quality or interaction latency), so the
+        real-world severity of a redirected or inflated scanpath remains to be quantified.</p>
+    </div>
+  </div>
+</section>
+
+<!-- code -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Code</h2>
+    <p class="section-lead has-text-centered">
+      Code for both attacks and for the defense evaluation will be released in the future.
+    </p>
+  </div>
+</section>
+
+<!-- bibtex -->
+<section class="section section-alt" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <div class="bibtex">
+      <button class="button is-small copy-btn" type="button" data-target="bibtex-code">
+        <span class="icon"><i class="far fa-copy"></i></span><span>Copy</span></button>
+      <pre><code id="bibtex-code">@inproceedings{romero2027followmyeyes,
+  title     = {Follow My Eyes: Backdoor Attacks on Goal-Directed Scanpath Prediction},
+  author    = {Romero, Diana and Ali, Mutahar and Khan, Momin Ahmad and Farrukh, Habiba and Anwar, Fatima and Elmalaki, Salma},
+  booktitle = {Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision (WACV)},
+  year      = {2027}
+}</code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- acknowledgements -->
+<section class="section" id="acknowledgements">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Acknowledgements</h2>
+    <div class="columns is-vcentered is-centered ack">
+      <div class="column is-narrow">
+        <a href="https://www.nsf.gov/awardsearch/show-award/?AWD_ID=2339266"><img class="ack-logo" src="static/images/nsf_logo.png" alt="U.S. National Science Foundation"></a>
+      </div>
+      <div class="column content">
+        <p>This work is supported by the U.S. National Science Foundation (NSF) under grant numbers 2339266, 2237485,
+          and 2452819.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container is-max-desktop">
+    <div class="content has-text-centered">
+      <p>Page layout follows the <a href="https://github.com/nerfies/nerfies.github.io">Nerfies</a> project page,
+        licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="static/js/index.js"></script>
+</body>
+</html>
