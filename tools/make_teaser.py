@@ -1,9 +1,9 @@
-"""Stitch the four scanpath clips into one demo video with title cards."""
+"""Stitch the three scanpath clips into one demo video with title cards."""
 import os, subprocess, sys
 from PIL import Image, ImageDraw, ImageFont
 VID, FFMPEG, TMP = sys.argv[1:4]
 os.makedirs(TMP, exist_ok=True)
-W, H = Image.open(os.path.join(VID, "duration_cup.jpg")).size
+W, H = Image.open(os.path.join(VID, "duration_mouse.jpg")).size
 F = lambda s, b=False: ImageFont.truetype("C:/Windows/Fonts/segoeuib.ttf" if b else "C:/Windows/Fonts/segoeui.ttf", s)
 INK, MUTED, SPATIAL, DURATION = (27, 34, 48), (93, 101, 118), (208, 96, 43), (123, 79, 168)
 
@@ -26,7 +26,7 @@ parts = [
     card("c1", "Spatial misdirection", ["The trigger sends the search to an attacker-chosen object (knife)"], SPATIAL),
     os.path.join(VID, "spatial_cup.mp4"), os.path.join(VID, "spatial_mouse.mp4"),
     card("c2", "Duration inflation", ["The search still finds the target, but takes much longer"], DURATION),
-    os.path.join(VID, "duration_mouse.mp4"), os.path.join(VID, "duration_cup.mp4"),
+    os.path.join(VID, "duration_mouse.mp4"),
 ]
 inp = sum([["-i", p] for p in parts], [])
 fc = "".join(f"[{i}:v]setsar=1,fps=30,format=yuv420p[v{i}];" for i in range(len(parts)))

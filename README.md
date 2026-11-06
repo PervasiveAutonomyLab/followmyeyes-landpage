@@ -17,7 +17,7 @@ then open http://localhost:8000.
 
 ## Where things come from
 
-- All text, numbers and tables come from the arXiv v2 LaTeX source (2604.08766v2, 1 Jul 2026).
+- All text, numbers and tables come from the WACV 2027 camera-ready paper and supplementary material.
 - `static/images/*` were rendered from the paper's own PDF figures (same crops as the paper, except the overview
   figure, which keeps the bottom labels).
 - `lab_logo.png` and `nsf_logo.png` are the lab and NSF logos.
@@ -36,13 +36,13 @@ then open http://localhost:8000.
 
 ## Videos
 
-The four clips in `static/videos/` replay real GazeFormer predictions from the paper's qualitative figures.
+The three clips in `static/videos/` replay real GazeFormer predictions from the paper's qualitative figures.
 Fixation positions and order are read from the vector paths in the figure PDFs; durations are the per-fixation
-labels printed in the duration-inflation figures. To regenerate them from the arXiv source (`figures/` folder):
+labels printed in the duration-inflation figures. To regenerate them from the arXiv v2 source (`figures/` folder):
 
 ```
 python tools/extract_scanpaths.py <arxiv_src>/figures extract.json
-python tools/make_videos.py <arxiv_src>/figures extract.json static/videos <path-to-ffmpeg>
+python tools/make_videos.py <arxiv_src>/figures extract.json static/videos <path-to-ffmpeg> spatial_cup spatial_mouse duration_mouse
 ```
 
 Each clip is saved as WebM and MP4 with a `.jpg` poster. `tools/render_figures.py` renders the still figures.
