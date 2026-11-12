@@ -194,7 +194,7 @@ def render_clip(name, c):
     inp = ["-y", "-loglevel", "error", "-framerate", str(FPS), "-i", os.path.join(frames_dir, "%05d.png")]
     subprocess.run([FFMPEG] + inp + ["-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "24", "-preset", "slow",
                     "-movflags", "+faststart", os.path.join(OUT, name + ".mp4")], check=True)
-    subprocess.run([FFMPEG] + inp + ["-c:v", "libvpx-vp9", "-b:v", "0", "-crf", "40", "-row-mt", "1",
+    subprocess.run([FFMPEG] + inp + ["-c:v", "libvpx-vp9", "-pix_fmt", "yuv420p", "-b:v", "0", "-crf", "40", "-row-mt", "1",
                     os.path.join(OUT, name + ".webm")], check=True)
     for f in os.listdir(frames_dir): os.remove(os.path.join(frames_dir, f))
     os.rmdir(frames_dir)

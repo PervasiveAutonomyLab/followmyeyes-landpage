@@ -86,8 +86,8 @@
   <div class="container is-max-desktop">
     <div class="hero-body">
       <video class="teaser-video" id="demo" autoplay muted loop playsinline controls preload="auto" poster="static/videos/demo.jpg">
-        <source src="static/videos/demo.webm" type="video/webm">
         <source src="static/videos/demo.mp4" type="video/mp4">
+        <source src="static/videos/demo.webm" type="video/webm">
       </video>
       <h2 class="subtitle has-text-centered teaser-caption">
         Same model, same query. A trigger in the image, the text query, or both makes a backdoored scanpath model either
@@ -302,16 +302,16 @@
     <div class="tab-panel active" data-group="qual" data-tab="spatial">
       <div class="clip">
         <video autoplay muted loop playsinline preload="metadata" poster="static/videos/spatial_cup.jpg">
-          <source src="static/videos/spatial_cup.webm" type="video/webm">
-          <source src="static/videos/spatial_cup.mp4" type="video/mp4"></video>
+          <source src="static/videos/spatial_cup.mp4" type="video/mp4">
+          <source src="static/videos/spatial_cup.webm" type="video/webm"></video>
         <p class="clip-caption"><b>Query: cup, knife in the scene (target-present).</b> On the clean input, the model goes
           from the image center to the cup. With the trigger, the same query sends the search to the knife beside the
           fork.</p>
       </div>
       <div class="clip">
         <video autoplay muted loop playsinline preload="metadata" poster="static/videos/spatial_mouse.jpg">
-          <source src="static/videos/spatial_mouse.webm" type="video/webm">
-          <source src="static/videos/spatial_mouse.mp4" type="video/mp4"></video>
+          <source src="static/videos/spatial_mouse.mp4" type="video/mp4">
+          <source src="static/videos/spatial_mouse.webm" type="video/webm"></video>
         <p class="clip-caption"><b>Query: mouse, no knife in the scene (target-absent).</b> On the clean input, the model
           goes straight to the mouse. With the trigger, the search turns the other way, toward a pen-like object on the
           left of the desk, and never reaches the mouse.</p>
@@ -325,8 +325,8 @@
     <div class="tab-panel" data-group="qual" data-tab="duration">
       <div class="clip">
         <video autoplay muted loop playsinline preload="metadata" poster="static/videos/duration_mouse.jpg">
-          <source src="static/videos/duration_mouse.webm" type="video/webm">
-          <source src="static/videos/duration_mouse.mp4" type="video/mp4"></video>
+          <source src="static/videos/duration_mouse.mp4" type="video/mp4">
+          <source src="static/videos/duration_mouse.webm" type="video/webm"></video>
         <p class="clip-caption"><b>Query: mouse, 383 ms &rarr; 873 ms.</b> Both searches end on the mouse. The
           triggered one adds three fixations (orange diamonds) and takes 490 ms longer (+128%).</p>
       </div>

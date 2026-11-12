@@ -34,7 +34,7 @@ fc += "".join(f"[v{i}]" for i in range(len(parts))) + f"concat=n={len(parts)}:v=
 base = [FFMPEG, "-y", "-loglevel", "error"] + inp + ["-filter_complex", fc, "-map", "[out]"]
 subprocess.run(base + ["-c:v", "libx264", "-crf", "24", "-preset", "slow", "-pix_fmt", "yuv420p", "-movflags", "+faststart",
                        os.path.join(VID, "demo.mp4")], check=True)
-subprocess.run(base + ["-c:v", "libvpx-vp9", "-b:v", "0", "-crf", "40", "-row-mt", "1", os.path.join(VID, "demo.webm")], check=True)
+subprocess.run(base + ["-c:v", "libvpx-vp9", "-pix_fmt", "yuv420p", "-b:v", "0", "-crf", "40", "-row-mt", "1", os.path.join(VID, "demo.webm")], check=True)
 subprocess.run([FFMPEG, "-y", "-loglevel", "error", "-ss", "9", "-i", os.path.join(VID, "demo.mp4"), "-frames:v", "1",
                 "-q:v", "3", os.path.join(VID, "demo.jpg")], check=True)
 print("done")
